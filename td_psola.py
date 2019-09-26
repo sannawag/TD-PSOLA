@@ -38,8 +38,6 @@ from numpy.fft import fft, ifft
 import matplotlib.pyplot as plt
 import librosa
 
-plt.style.use('ggplot')
-
 
 def shift_pitch(signal, fs, f_ratio):
     """
@@ -67,13 +65,17 @@ def find_peaks(signal, fs, max_hz=950, min_hz=75, analysis_win_ms=40, max_change
     N = len(signal)
     min_period = fs // max_hz
     max_period = fs // min_hz
+
+    # compute pitch periodicity
     sequence = int(analysis_win_ms / 1000 * fs)  # analysis sequence length in samples
     periods = compute_periods_per_sequence(signal, sequence, min_period, max_period)
-    # simple hack to avoid glitches: assume that the pitch should not vary much, restrict
+
+    # simple hack to avoid octave error: assume that the pitch should not vary much, restrict range
     mean_period = np.mean(periods)
     max_period = int(mean_period * 1.75)
     min_period = int(mean_period * 0.57)
     periods = compute_periods_per_sequence(signal, sequence, min_period, max_period)
+
     # find the peaks
     peaks = [np.argmax(signal[:int(periods[0]*1.1)])]
     while True:
@@ -97,9 +99,10 @@ def compute_periods_per_sequence(signal, sequence, min_period, max_period):
     """
     offset = 0  # current sample offset
     periods = []  # period length of each analysis sequence
+
     while offset < N:
         fourier = fft(signal[offset: offset + sequence])
-        fourier[0] *= 0  # remove DC component
+        fourier[0] = 0  # remove DC component
         autoc = ifft(fourier * np.conj(fourier)).real
         autoc_peak = min_period + np.argmax(autoc[min_period: max_period])
         periods.append(autoc_peak)
@@ -120,11 +123,13 @@ def psola(signal, peaks, f_ratio):
     new_signal = np.zeros(N)
     new_peaks_ref = np.linspace(0, len(peaks) - 1, len(peaks) * f_ratio)
     new_peaks = np.zeros(len(new_peaks_ref)).astype(int)
+
     for i in range(len(new_peaks)):
         weight = new_peaks_ref[i] % 1
         left = np.floor(new_peaks_ref[i]).astype(int)
         right = np.ceil(new_peaks_ref[i]).astype(int)
         new_peaks[i] = int(peaks[left] * (1 - weight) + peaks[right] * weight)
+
     # PSOLA
     for j in range(len(new_peaks)):
         # find the corresponding old peak index
@@ -148,13 +153,19 @@ if __name__=="__main__":
     # Load audio
     orig_signal, fs = librosa.load("female_scale.wav", sr=44100)
     N = len(orig_signal)
+
     # Pitch shift amount as a ratio
     f_ratio = 2 ** (-2 / 12)
+
     # Shift pitch
     new_signal = shift_pitch(orig_signal, fs, f_ratio)
-    # Plot and write to disk
+
+    # Plot
+    plt.style.use('ggplot')
     plt.plot(orig_signal[:-1])
     plt.show()
     plt.plot(new_signal[:-1])
     plt.show()
+
+    # Write to disk
     librosa.output.write_wav("female_scale_transposed_{}.wav".format(f_ratio), new_signal, fs)
