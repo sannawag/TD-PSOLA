@@ -1,24 +1,29 @@
 # TD-PSOLA
-A simple pitch shifting script (Time-Domain Pitch Synchronous Overlap and Add)
+This repository provides a script for pitch shifting using the "time-domain pitch synchronous overlap and add (TD-PSOLA)" algorithm. The original PSOLA algorithm was introduced in [1].
 
-This script applies time-domain pitch shifting using the peak detection technique described in 
-- https://courses.engr.illinois.edu/ece420/lab5/lab/#overlap-add-algorithm
-- Charpentier, Ff, and M. Stella. "Diphone synthesis using an overlap-add
-  technique for speech waveforms concatenation."
-  ICASSP'86. IEEE International Conference on Acoustics, Speech,
-  and Signal Processing. Vol. 11. IEEE, 1986.
-  
- It uses the linear cross-fading technique from SOLA
- - https://www.surina.net/article/time-and-pitch-scaling.html
- - https://gitlab.com/soundtouch (This program is used in Audacity for the simpler pitch shifting algorithm)
- 
-Dependencies:
-- Librosa (for audio reading and writing: can be replaced with other packages like scipy.signal)
-- Matplotlib (can be removed if not plotting the results)
-- Numpy 
+## Description
+The main script ```td_psola.py``` takes raw audio as input and applies steps similar to those described in [2]. First, it locates the time-domain peaks using auto-correlation. It then shifts windows centered at the peaks closer or further apart in time to change the periodicity of the signal, which shifts the pitch without affecting the formant. It applies linear cross-fading as introduced in [3] and implemented in [4], the algorithm used for [Audacity[(https://www.audacityteam.org/)'s simple pitch shifter. 
 
-Note:
+## Usage
+Make sure that ```pip``` and ```python``` are installed (Python 3) and install the script's dependencies. Note: ```Librosa``` is used for audio reading and writing but can be replaced with other packages such as ```scipy.signal```. ```Matplotlib``` can be removed if not plotting the results. 
+
+```
+pip3 install -r requirements.txt
+```
+
+The script can be run through
+
+```python td_psola.py``` or imported into another program by ```from td_psola import shift_pitch```.
+
+### Notes
+- Some parameters in the program related to frequency are hardcoded for singing voice. They can be adjusted for other usages.
+- The program is designed to process sounds whose pitch does not vary too much, as this could result in glitches in peak detection (e.g., octave errors). Processing audio in short segment (e.g., notes or words) is recommended. Another option would be to use a more robust peak detection algorithm, for example, pYIN [5]
+- Small pitch shifts (e.g., up to 700 cents) should not produce many artifacts. Sound quality degrades if the shift is too large.
 - The signal is expected to be voiced. Unexpected results may occur in the case of unvoiced signals
-- The parameters in the program such as frequency thresholds are designed for singing voice. They can be adjusted for other instruments.
-- The program is designed not to allow too much variation in pitch as this could result in glitches. Shifting every short audio segment (note) separately is recommended. Another option would be to use a more robust peak detection algorithm, for example, pYIN (https://code.soundsoftware.ac.uk/projects/pyin) 
-- The result should not contain many artifacts when the shift is small enough (e.g., up to 700 cents). Sound quality degrades if the shift is too large.
+
+## References
+1. F. Charpentier and M. Stella. "Diphone synthesis using an overlap-add technique for speech waveforms concatenation." In *Int. Conf. Acoustics, Speech, and Signal Processing (ICASSP)*. Vol. 11. IEEE, 1986. 
+2. [Overlap and add algorithm exercise from UIUC](https://courses.engr.illinois.edu/ece420/lab5/lab/#overlap-add-algorithm)
+3. [Time and pitch scaling using SOLA](https://www.surina.net/article/time-and-pitch-scaling.html)
+4. [Soundtouch](https://gitlab.com/soundtouch)
+5. [Probabilistic YIN (pYIN)](https://code.soundsoftware.ac.uk/projects/pyin)

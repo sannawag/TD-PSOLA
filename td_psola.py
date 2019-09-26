@@ -2,16 +2,35 @@
 Author: Sanna Wager
 Created on: 9/18/19
 
-References:
-- https://www.surina.net/article/time-and-pitch-scaling.html, and corresponding library https://gitlab.com/soundtouch
-- https://courses.engr.illinois.edu/ece420/lab5/lab/#overlap-add-algorithm
-- Charpentier, Ff, and M. Stella. "Diphone synthesis using an overlap-add
-  technique for speech waveforms concatenation."
-  ICASSP'86. IEEE International Conference on Acoustics, Speech,
-  and Signal Processing. Vol. 11. IEEE, 1986.
+This script provides an implementation of pitch shifting using the "time-domain pitch synchronous
+overlap and add (TD-PSOLA)" algorithm. The original PSOLA algorithm was introduced in [1].
 
-The signal is expected to be voiced.
-Peak detection may cause bad results for unvoiced audio.
+Description
+The main script td_psola.py takes raw audio as input and applies steps similar to those described in [2].
+First, it locates the time-domain peaks using auto-correlation. It then shifts windows centered at the
+peaks closer or further apart in time to change the periodicity of the signal, which shifts the pitch
+without affecting the formant. It applies linear cross-fading as introduced in [3] and implemented in
+[4], the algorithm used for Audacity's simple pitch shifter.
+
+Notes:
+- Some parameters in the program related to frequency are hardcoded for singing voice. They can be
+    adjusted for other usages.
+- The program is designed to process sounds whose pitch does not vary too much, as this could result
+    in glitches in peak detection (e.g., octave errors). Processing audio in short segment (e.g.,
+    notes or words) is recommended. Another option would be to use a more robust peak detection
+    algorithm, for example, pYIN [5]
+- Small pitch shifts (e.g., up to 700 cents) should not produce many artifacts. Sound quality degrades
+    if the shift is too large.
+- The signal is expected to be voiced. Unexpected results may occur in the case of unvoiced signals
+
+References:
+Overlap and add algorithm exercise from UIUC
+[1] F. Charpentier and M. Stella. "Diphone synthesis using an overlap-add technique for speech waveforms
+    concatenation." In Int. Conf. Acoustics, Speech, and Signal Processing (ICASSP). Vol. 11. IEEE, 1986.
+[2] https://courses.engr.illinois.edu/ece420/lab5/lab/#overlap-add-algorithm
+[3] https://www.surina.net/article/time-and-pitch-scaling.html
+[4] https://gitlab.com/soundtouch
+[5] https://code.soundsoftware.ac.uk/projects/pyin
 """
 
 import numpy as np
