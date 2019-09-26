@@ -5,7 +5,7 @@ This repository provides a script for pitch shifting using the "time-domain pitc
 The main script ```td_psola.py``` takes raw audio as input and applies steps similar to those described in [2]. First, it locates the time-domain peaks using auto-correlation. It then shifts windows centered at the peaks closer or further apart in time to change the periodicity of the signal, which shifts the pitch without affecting the formant. It applies linear cross-fading as introduced in [3] and implemented in [4], the algorithm used for [Audacity[(https://www.audacityteam.org/)'s simple pitch shifter. 
 
 ## Usage
-Make sure that ```pip``` and ```python``` are installed (Python 3) and install the script's dependencies. Note: ```Librosa``` is used for audio reading and writing but can be replaced with other packages such as ```scipy.signal```. ```Matplotlib``` can be removed if not plotting the results. 
+Make sure that ```pip``` and ```python3``` are installed (The program was written using Python 3.6) and install the script's dependencies. Note: ```Librosa``` is used for audio reading and writing but can be replaced with other packages such as ```scipy.signal```. ```Matplotlib``` can be removed if not plotting the results. 
 
 ```
 pip3 install -r requirements.txt
@@ -14,6 +14,8 @@ pip3 install -r requirements.txt
 The script can be run through
 
 ```python td_psola.py``` or imported into another program by ```from td_psola import shift_pitch```.
+
+To test it, simply run ```python td_psola.py``` with the default settings and compare the output with ```female_scale_transposed_target_0.89.wav```.
 
 ### Notes
 - Some parameters in the program related to frequency are hardcoded for singing voice. They can be adjusted for other usages.

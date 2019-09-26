@@ -168,4 +168,4 @@ if __name__=="__main__":
     plt.show()
 
     # Write to disk
-    librosa.output.write_wav("female_scale_transposed_{}.wav".format(f_ratio), new_signal, fs)
+    librosa.output.write_wav("female_scale_transposed_{:01.2f}.wav".format(f_ratio), new_signal, fs)
