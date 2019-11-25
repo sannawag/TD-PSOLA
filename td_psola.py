@@ -52,7 +52,7 @@ def shift_pitch(signal, fs, f_ratio):
     return new_signal
 
 
-def find_peaks(signal, fs, max_hz=950, min_hz=75, analysis_win_ms=40, max_change=1.3, min_change=0.7):
+def find_peaks(signal, fs, max_hz=950, min_hz=75, analysis_win_ms=40, max_change=1.005, min_change=0.995):
     """
     Find sample indices of peaks in time-domain signal
     :param max_hz: maximum measured fundamental frequency
@@ -72,8 +72,8 @@ def find_peaks(signal, fs, max_hz=950, min_hz=75, analysis_win_ms=40, max_change
 
     # simple hack to avoid octave error: assume that the pitch should not vary much, restrict range
     mean_period = np.mean(periods)
-    max_period = int(mean_period * 1.75)
-    min_period = int(mean_period * 0.57)
+    max_period = int(mean_period * 1.1)
+    min_period = int(mean_period * 0.9)
     periods = compute_periods_per_sequence(signal, sequence, min_period, max_period)
 
     # find the peaks
